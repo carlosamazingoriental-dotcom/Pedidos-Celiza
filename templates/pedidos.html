@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><title>Pedidos</title></head>
+<body>
+<h2>Bienvenido {{ user }}{% if role=='admin' %} (ADMIN){% endif %}</h2>
+<a href="/logout">Cerrar sesión</a>
+
+<h3>Añadir pedido</h3>
+<form method="post">
+    Código: <input type="text" name="codigo" required>
+    Cantidad: <input type="number" name="cantidad" required>
+    <button type="submit">Añadir pedido</button>
+</form>
+
+<h3>Lista de pedidos</h3>
+<table border="1">
+<tr><th>ID</th><th>Código</th><th>Cantidad</th><th>Usuario</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr>
+{% for p in pedidos %}
+<tr>
+    <td>{{ p.id }}</td>
+    <td>{{ p.codigo }}</td>
+    <td>{{ p.cantidad }}</td>
+    <td>{{ p.usuario }}</td>
+    <td>{{ p.estado }}</td>
+    <td>{{ p.fecha_tramitado }}</td>
+    <td>
+        {% if role=='admin' and p.estado!='tramitado' %}
+        <a href="/tramitado/{{ p.id }}">[TRAMITADO]</a>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>
