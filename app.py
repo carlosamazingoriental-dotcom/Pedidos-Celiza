@@ -46,13 +46,18 @@ def pedidos():
 
     # Crear nuevo pedido
     if request.method == "POST":
-        detalles = request.form["detalles"]  # varias líneas
+        detalles = request.form["detalles"]
         fecha_pedido = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Si es admin, tomar el usuario seleccionado, si no, usar el propio
+        pedido_usuario = request.form.get("pedido_usuario") if role=="admin" else user
         db.execute(
             "INSERT INTO pedidos (detalles, usuario, fecha_pedido) VALUES (?, ?, ?)",
-            (detalles, user, fecha_pedido)
+            (detalles, pedido_usuario, fecha_pedido)
         )
         db.commit()
+        db.close()
+        # REDIRECT para evitar duplicados al refrescar
+        return redirect("/pedidos")
 
     # Consultar pedidos
     if role == "admin":
