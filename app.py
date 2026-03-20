@@ -40,12 +40,12 @@ def pedidos():
     if "username" not in session:
         return redirect("/")
 
-    db = get_db()
     user = session["username"]
     role = session["role"]
 
-    # Crear nuevo pedido
+    # ===== POST: crear nuevo pedido =====
     if request.method == "POST":
+        db = get_db()
         detalles = request.form["detalles"]
         fecha_pedido = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # Si es admin, tomar el usuario seleccionado, si no, usar el propio
@@ -56,15 +56,15 @@ def pedidos():
         )
         db.commit()
         db.close()
-        # REDIRECT para evitar duplicados al refrescar
+        # REDIRECT inmediato para evitar duplicados
         return redirect("/pedidos")
 
-    # Consultar pedidos
+    # ===== GET: mostrar pedidos =====
+    db = get_db()
     if role == "admin":
         pedidos_list = db.execute("SELECT * FROM pedidos").fetchall()
     else:
         pedidos_list = db.execute("SELECT * FROM pedidos WHERE usuario=?", (user,)).fetchall()
-
     db.close()
     return render_template("pedidos.html", pedidos=pedidos_list, user=user, role=role)
 

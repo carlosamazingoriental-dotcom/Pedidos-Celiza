@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head><title>Pedidos</title></head>
+<head>
+    <title>Pedidos</title>
+</head>
 <body>
 <h2>Bienvenido {{ user }}{% if role=='admin' %} (ADMIN){% endif %}</h2>
 <a href="/logout">Cerrar sesión</a>
@@ -17,40 +19,40 @@
         <option value="Oriental Barcelona">Oriental Barcelona</option>
         <option value="Oriental Vitoria">Oriental Vitoria</option>
     </select>
-    <br>
+    <br><br>
     {% endif %}
     Productos (cada línea un producto, ej: "1 palet C1020"):
     <br>
     <textarea name="detalles" rows="6" cols="50" placeholder="1 palet C1020&#10;2 palets J1024&#10;5 unidades B1010" required></textarea>
-    <br>
+    <br><br>
     <button type="submit">Añadir pedido</button>
 </form>
 
 <h3>Lista de pedidos</h3>
-<table border="1">
+<table border="1" cellpadding="5">
 <tr>
-<th>ID</th>
-<th>Detalles</th>
-<th>Usuario</th>
-<th>Estado</th>
-<th>Fecha pedido</th>
-<th>Fecha tramitado</th>
-<th>Acciones</th>
+    <th>ID</th>
+    <th>Detalles</th>
+    <th>Usuario</th>
+    <th>Estado</th>
+    <th>Fecha pedido</th>
+    <th>Fecha tramitado</th>
+    <th>Acciones</th>
 </tr>
 
 {% for p in pedidos %}
 <tr>
-<td>{{ p.id }}</td>
-<td style="white-space: pre-line;">{{ p.detalles }}</td>
-<td>{{ p.usuario }}</td>
-<td>{{ p.estado }}</td>
-<td>{{ p.fecha_pedido }}</td>
-<td>{{ p.fecha_tramitado }}</td>
-<td>
-{% if role=='admin' and p.estado!='tramitado' %}
-<a href="/tramitado/{{ p.id }}">[TRAMITADO]</a>
-{% endif %}
-</td>
+    <td>{{ p.id }}</td>
+    <td style="white-space: pre-line;">{{ p.detalles }}</td>
+    <td>{{ p.usuario }}</td>
+    <td>{{ p.estado }}</td>
+    <td>{{ p.fecha_pedido }}</td>
+    <td>{{ p.fecha_tramitado }}</td>
+    <td>
+        {% if role=='admin' and p.estado!='tramitado' %}
+        <a href="/tramitado/{{ p.id }}">[TRAMITADO]</a>
+        {% endif %}
+    </td>
 </tr>
 {% endfor %}
 </table>
