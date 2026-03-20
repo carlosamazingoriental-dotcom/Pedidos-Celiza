@@ -10,14 +10,19 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-# PÁGINA DE LOGIN
+# ========================
+# LOGIN
+# ========================
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         db = get_db()
-        user = db.execute("SELECT * FROM usuarios WHERE username=? AND password=?", (username, password)).fetchone()
+        user = db.execute(
+            "SELECT * FROM usuarios WHERE username=? AND password=?", 
+            (username, password)
+        ).fetchone()
         db.close()
         if user:
             session["username"] = user["username"]
@@ -27,7 +32,9 @@ def login():
             return render_template("login.html", error="Usuario o contraseña incorrectos")
     return render_template("login.html", error=None)
 
-# PÁGINA DE PEDIDOS
+# ========================
+# PEDIDOS
+# ========================
 @app.route("/pedidos", methods=["GET", "POST"])
 def pedidos():
     if "username" not in session:
@@ -37,21 +44,28 @@ def pedidos():
     user = session["username"]
     role = session["role"]
 
+    # Crear nuevo pedido
     if request.method == "POST":
-        codigo = request.form["codigo"]
-        cantidad = request.form["cantidad"]
-        db.execute("INSERT INTO pedidos (codigo, cantidad, usuario) VALUES (?, ?, ?)", (codigo, cantidad, user))
+        detalles = request.form["detalles"]  # varias líneas
+        fecha_pedido = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        db.execute(
+            "INSERT INTO pedidos (detalles, usuario, fecha_pedido) VALUES (?, ?, ?)",
+            (detalles, user, fecha_pedido)
+        )
         db.commit()
 
+    # Consultar pedidos
     if role == "admin":
-        pedidos = db.execute("SELECT * FROM pedidos").fetchall()
+        pedidos_list = db.execute("SELECT * FROM pedidos").fetchall()
     else:
-        pedidos = db.execute("SELECT * FROM pedidos WHERE usuario=?", (user,)).fetchall()
+        pedidos_list = db.execute("SELECT * FROM pedidos WHERE usuario=?", (user,)).fetchall()
 
     db.close()
-    return render_template("pedidos.html", pedidos=pedidos, user=user, role=role)
+    return render_template("pedidos.html", pedidos=pedidos_list, user=user, role=role)
 
+# ========================
 # MARCAR TRAMITADO (solo admin)
+# ========================
 @app.route("/tramitado/<int:id>")
 def tramitado(id):
     if "username" not in session or session["role"] != "admin":
@@ -59,16 +73,24 @@ def tramitado(id):
 
     db = get_db()
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    db.execute("UPDATE pedidos SET estado='tramitado', fecha_tramitado=? WHERE id=?", (fecha_actual, id))
+    db.execute(
+        "UPDATE pedidos SET estado='tramitado', fecha_tramitado=? WHERE id=?",
+        (fecha_actual, id)
+    )
     db.commit()
     db.close()
     return redirect("/pedidos")
 
+# ========================
 # CERRAR SESIÓN
+# ========================
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
+# ========================
+# EJECUTAR APP
+# ========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
